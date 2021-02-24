@@ -1,0 +1,11 @@
+service: problems
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: eu-central-1
+
+functions:
+  hello:
+    handler: handler.hello
