@@ -15,6 +15,18 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:DescribeLogGroups
+        - logs:DescribeLogStreams
+        - logs:PutLogEvents
+        - logs:GetLogEvents
+        - logs:FilterLogEvents
       Resource: "*"
 
 resources:
@@ -55,9 +67,22 @@ functions:
           method: get
   problemDetails:
     handler: api/problem.get
+    memorySize: 128
     events:
       - http:
           path: api/problems/{id}
           method: get
-
-
+  deleteProblem:
+    handler: api/problem.delete
+    memorySize: 128
+    events:
+      - http:
+          path: api/problems/{id}
+          method: delete
+  updateProblem:
+    handler: api/problem.update
+    memorySize: 128
+    events:
+      - http:
+          path: api/problems/{id}
+          method: patch

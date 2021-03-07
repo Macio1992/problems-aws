@@ -88,7 +88,120 @@ module.exports.get = async (event, context, callback) => {
     callback(null, {
       statusCode: 500,
       body: JSON.stringify({
-        message: `Unable to list problems table`
+        message: `Unable to get problem table`
+      })
+    });
+  }
+};
+
+module.exports.delete = async (event, context, callback) => {
+  const { id } = event.pathParameters;
+  const params = {
+    TableName: process.env.PROBLEM_TABLE,
+    Key: {
+      ProblemId: id
+    }
+  };
+
+  try {
+    const problem = await getProblem(params);
+
+    console.log('PROBLEM ', problem);
+
+    if (problem && Object.keys(problem).length === 0) {
+      callback(null, {
+        statusCode: 404,
+        body: JSON.stringify({
+          message: `Problem ${id} not found`
+        })
+      });
+    }
+
+    const x = await deleteProblem(params);
+    console.log('XXXX ', x);
+
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: `Successfully removed problem ${id}`
+      })
+    };
+
+    callback(null, response);
+  } catch (err) {
+    console.error('ERROR ', err);
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: `Unable to delete problem`
+      })
+    });
+  }
+};
+
+module.exports.update = async (event, context, callback) => {
+  const { id } = event.pathParameters;
+  const requestBody = JSON.parse(event.body);
+
+  const {
+    ProblemContent,
+    ProblemSolution,
+    ProblemType,
+    ProblemCategory,
+    ProblemSubCategory } = requestBody;
+
+  console.log('RB ', requestBody);
+
+  // const problemToUpdate = {
+  //   ProblemId: id,
+  //   ProblemContent,
+  //   ProblemSolution,
+  //   ProblemType,
+  //   ProblemCategory,
+  //   ProblemSubCategory,
+  //   UpdatedAt: new Date().toISOString()
+  // };
+
+  const problemToUpdate = {
+    TableName: process.env.PROBLEM_TABLE,
+    Key: {
+      ProblemId: id
+    },
+    UpdateExpression: "set #ProblemContent = :ProblemContent, #ProblemSolution = :ProblemSolution, #ProblemType = :ProblemType, #ProblemCategory = :ProblemCategory, #ProblemSubCategory = :ProblemSubCategory, #UpdatedAt = :UpdatedAt",
+    ExpressionAttributeValues: {
+      ":ProblemContent": ProblemContent,
+      ":ProblemSolution": ProblemSolution,
+      ":ProblemType": ProblemType,
+      ":ProblemCategory": ProblemCategory,
+      ":ProblemSubCategory": ProblemSubCategory,
+      ":UpdatedAt": new Date().toISOString()
+    },
+    ExpressionAttributeNames: {
+      '#ProblemContent': 'ProblemContent',
+      '#ProblemSolution': 'ProblemSolution',
+      '#ProblemType': 'ProblemType',
+      '#ProblemCategory': 'ProblemCategory',
+      '#ProblemSubCategory': 'ProblemSubCategory',
+      '#UpdatedAt': 'UpdatedAt'
+    },
+    ReturnValues: 'ALL_NEW'
+  };
+
+  try {
+    const res = await updateProblem(problemToUpdate);
+    callback(null, {
+      statusCode: 200,
+      body: JSON.stringify({
+        message: `Sucessfully updated problem`,
+        response: res
+      })
+    });
+  } catch (err) {
+    console.log(err);
+    callback(null, {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: `Unable to update problem`
       })
     });
   }
@@ -114,4 +227,12 @@ const scanProblemTable = async () => {
 
 const getProblem = async params => {
   return dynamoDb.get(params).promise();
+}
+
+async function deleteProblem(params) {
+  return dynamoDb.delete(params).promise();
+}
+
+async function updateProblem(params) {
+  return dynamoDb.update(params).promise();
 }
