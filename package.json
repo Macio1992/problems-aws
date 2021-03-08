@@ -1,0 +1,26 @@
+{
+  "name": "problem-aws",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.850.0",
+    "bluebird": "^3.7.2",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Macio1992/problems-aws.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Macio1992/problems-aws/issues"
+  },
+  "homepage": "https://github.com/Macio1992/problems-aws#readme"
+}

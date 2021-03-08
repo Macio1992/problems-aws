@@ -5,7 +5,84 @@ provider:
   runtime: nodejs12.x
   stage: dev
   region: eu-central-1
+  profile: tymian
+  environment:
+    PROBLEM_TABLE: ${self:service}-${self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - logs:CreateLogGroup
+        - logs:CreateLogStream
+        - logs:DescribeLogGroups
+        - logs:DescribeLogStreams
+        - logs:PutLogEvents
+        - logs:GetLogEvents
+        - logs:FilterLogEvents
+      Resource: "*"
+
+resources:
+  Resources:
+    ProblemDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "ProblemId"
+            AttributeType: "S"
+        KeySchema:
+          -
+            AttributeName: "ProblemId"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.PROBLEM_TABLE}
 
 functions:
-  hello:
-    handler: handler.hello
+  createProblem:
+    handler: api/problem/create.createProblem
+    memorySize: 128
+    description: Create new problem
+    events:
+      - http:
+          path: api/problems
+          method: post
+  listProblems:
+    handler: api/problem/list.listProblems
+    memorySize: 128
+    description: List all problems
+    events:
+      - http:
+          path: api/problems
+          method: get
+  getProblem:
+    handler: api/problem/get.getProblem
+    memorySize: 128
+    events:
+      - http:
+          path: api/problems/{id}
+          method: get
+  deleteProblem:
+    handler: api/problem/delete.deleteProblem
+    memorySize: 128
+    events:
+      - http:
+          path: api/problems/{id}
+          method: delete
+  updateProblem:
+    handler: api/problem/update.updateProblem
+    memorySize: 128
+    events:
+      - http:
+          path: api/problems/{id}
+          method: patch
