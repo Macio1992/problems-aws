@@ -50,7 +50,7 @@ resources:
 
 functions:
   createProblem:
-    handler: api/problem.createProblem
+    handler: api/problem/create.createProblem
     memorySize: 128
     description: Create new problem
     events:
@@ -58,29 +58,29 @@ functions:
           path: api/problems
           method: post
   listProblems:
-    handler: api/problem.list
+    handler: api/problem/list.listProblems
     memorySize: 128
     description: List all problems
     events:
       - http:
           path: api/problems
           method: get
-  problemDetails:
-    handler: api/problem.get
+  getProblem:
+    handler: api/problem/get.getProblem
     memorySize: 128
     events:
       - http:
           path: api/problems/{id}
           method: get
   deleteProblem:
-    handler: api/problem.delete
+    handler: api/problem/delete.deleteProblem
     memorySize: 128
     events:
       - http:
           path: api/problems/{id}
           method: delete
   updateProblem:
-    handler: api/problem.update
+    handler: api/problem/update.updateProblem
     memorySize: 128
     events:
       - http:
