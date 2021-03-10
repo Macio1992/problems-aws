@@ -1,45 +1,41 @@
 'use strict';
 
 const uuid = require('uuid');
-const { validateProblem } = require('../../helpers/validate');
+const { validateCategory } = require('../../helpers/validate');
 const { putOne } = require('../../helpers/dynamo');
 
-module.exports.createProblem = async (event, context, callback) => {
+module.exports.createCategory = async (event, context, callback) => {
     const requestBody = JSON.parse(event.body);
     const {
-        ProblemContent,
-        ProblemSolution,
-        ProblemType,
-        ProblemCategory,
-        ProblemSubCategory } = requestBody;
+        CategoryName,
+        IsRootCategory,
+        CategoryParentId } = requestBody;
 
     try {
-        validateProblem(requestBody);
+        validateCategory(requestBody);
     } catch (err) {
         callback(null, err);
         return;
     }
 
-    const problem = {
-        ProblemId: uuid.v1(),
-        ProblemContent,
-        ProblemSolution,
-        ProblemType,
-        ProblemCategory,
-        ProblemSubCategory,
+    const category = {
+        CategoryId: uuid.v1(),
+        CategoryName,
+        IsRootCategory,
+        CategoryParentId,
         CreatedAt: new Date().toISOString(),
         UpdatedAt: null
     };
 
     try {
         const response = await putOne({
-            TableName: process.env.PROBLEM_TABLE,
-            Item: problem
+            TableName: process.env.CATEGORY_TABLE,
+            Item: category
         });
         callback(null, {
             statusCode: 200,
             body: JSON.stringify({
-                message: `Successfully created new problem`,
+                message: `Successfully created new category`,
                 response
             })
         });

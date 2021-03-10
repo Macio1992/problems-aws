@@ -2,14 +2,14 @@
 
 const { getOne } = require('../../helpers/dynamo');
 
-module.exports.getProblem = async (event, context, callback) => {
+module.exports.getCategory = async (event, context, callback) => {
     const { id } = event.pathParameters;
 
     try {
         const { Item: response } = await getOne({
-            TableName: process.env.PROBLEM_TABLE,
+            TableName: process.env.CATEGORY_TABLE,
             Key: {
-                ProblemId: id
+                CategoryId: id
             }
         });
         callback(null, {
@@ -26,3 +26,4 @@ module.exports.getProblem = async (event, context, callback) => {
         });
     }
 };
+

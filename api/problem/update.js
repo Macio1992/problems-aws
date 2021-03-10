@@ -1,10 +1,7 @@
 'use strict';
 
-const AWS = require('aws-sdk');
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
-const { validate } = require('../../helpers/validate');
-
-AWS.config.setPromisesDependency(require('bluebird'));
+const { updateOne } = require('../../helpers/dynamo');
+const { validateProblem } = require('../../helpers/validate');
 
 module.exports.updateProblem = async (event, context, callback) => {
     const { id } = event.pathParameters;
@@ -18,56 +15,48 @@ module.exports.updateProblem = async (event, context, callback) => {
         ProblemSubCategory } = requestBody;
 
     try {
-        validate(requestBody);
+        validateProblem(requestBody);
     } catch (err) {
         callback(null, err);
+        return;
     }
 
-    const problemToUpdate = {
-        TableName: process.env.PROBLEM_TABLE,
-        Key: {
-            ProblemId: id
-        },
-        UpdateExpression: "set #ProblemContent = :ProblemContent, #ProblemSolution = :ProblemSolution, #ProblemType = :ProblemType, #ProblemCategory = :ProblemCategory, #ProblemSubCategory = :ProblemSubCategory, #UpdatedAt = :UpdatedAt",
-        ExpressionAttributeValues: {
-            ":ProblemContent": ProblemContent,
-            ":ProblemSolution": ProblemSolution,
-            ":ProblemType": ProblemType,
-            ":ProblemCategory": ProblemCategory,
-            ":ProblemSubCategory": ProblemSubCategory,
-            ":UpdatedAt": new Date().toISOString()
-        },
-        ExpressionAttributeNames: {
-            '#ProblemContent': 'ProblemContent',
-            '#ProblemSolution': 'ProblemSolution',
-            '#ProblemType': 'ProblemType',
-            '#ProblemCategory': 'ProblemCategory',
-            '#ProblemSubCategory': 'ProblemSubCategory',
-            '#UpdatedAt': 'UpdatedAt'
-        },
-        ReturnValues: 'ALL_NEW'
-    };
-
     try {
-        const res = await updateProblem(problemToUpdate);
+        const response = await updateOne({
+            TableName: process.env.PROBLEM_TABLE,
+            Key: {
+                ProblemId: id
+            },
+            UpdateExpression: "set #ProblemContent = :ProblemContent, #ProblemSolution = :ProblemSolution, #ProblemType = :ProblemType, #ProblemCategory = :ProblemCategory, #ProblemSubCategory = :ProblemSubCategory, #UpdatedAt = :UpdatedAt",
+            ExpressionAttributeValues: {
+                ":ProblemContent": ProblemContent,
+                ":ProblemSolution": ProblemSolution,
+                ":ProblemType": ProblemType,
+                ":ProblemCategory": ProblemCategory,
+                ":ProblemSubCategory": ProblemSubCategory,
+                ":UpdatedAt": new Date().toISOString()
+            },
+            ExpressionAttributeNames: {
+                '#ProblemContent': 'ProblemContent',
+                '#ProblemSolution': 'ProblemSolution',
+                '#ProblemType': 'ProblemType',
+                '#ProblemCategory': 'ProblemCategory',
+                '#ProblemSubCategory': 'ProblemSubCategory',
+                '#UpdatedAt': 'UpdatedAt'
+            },
+            ReturnValues: 'ALL_NEW'
+        });
         callback(null, {
             statusCode: 200,
             body: JSON.stringify({
                 message: `Sucessfully updated problem`,
-                response: res
+                response
             })
         });
     } catch (err) {
-        console.log(err);
         callback(null, {
             statusCode: 500,
-            body: JSON.stringify({
-                message: `Unable to update problem`
-            })
+            body: JSON.stringify(err)
         });
     }
 };
-
-async function updateProblem(params) {
-    return dynamoDb.update(params).promise();
-}

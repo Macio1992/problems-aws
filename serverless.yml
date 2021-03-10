@@ -8,6 +8,7 @@ provider:
   profile: tymian
   environment:
     PROBLEM_TABLE: ${self:service}-${self:provider.stage}
+    CATEGORY_TABLE: categories-${self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -47,6 +48,22 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         TableName: ${self:provider.environment.PROBLEM_TABLE}
+    CategoryDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "CategoryId"
+            AttributeType: "S"
+        KeySchema:
+          -
+            AttributeName: "CategoryId"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.CATEGORY_TABLE}
 
 functions:
   createProblem:
@@ -85,4 +102,41 @@ functions:
     events:
       - http:
           path: api/problems/{id}
+          method: patch
+  createCategory:
+    handler: api/category/create.createCategory
+    memorySize: 128
+    description: Create new category
+    events:
+      - http:
+          path: api/categories
+          method: post
+  listCategories:
+    handler: api/category/list.listCategories
+    memorySize: 128
+    description: List all categories
+    events:
+      - http:
+          path: api/categories
+          method: get
+  getCategory:
+    handler: api/category/get.getCategory
+    memorySize: 128
+    events:
+      - http:
+          path: api/categories/{id}
+          method: get
+  deleteCategory:
+    handler: api/category/delete.deleteCategory
+    memorySize: 128
+    events:
+      - http:
+          path: api/categories/{id}
+          method: delete
+  updateCategory:
+    handler: api/category/update.updateCategory
+    memorySize: 128
+    events:
+      - http:
+          path: api/categories/{id}
           method: patch
