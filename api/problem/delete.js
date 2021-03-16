@@ -17,7 +17,7 @@ module.exports.deleteProblem = async (event, context, callback) => {
             callback(null, {
                 statusCode: 404,
                 body: JSON.stringify({
-                    message: `Problem ${id} not found`
+                    message: `Problem ${id} has not been found`
                 })
             });
         }

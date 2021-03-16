@@ -12,6 +12,16 @@ module.exports.getCategory = async (event, context, callback) => {
                 CategoryId: id
             }
         });
+
+        if (!response) {
+            callback(null, {
+                statusCode: 404,
+                body: JSON.stringify({
+                    message: `Category with id: ${id} has not been found`
+                })
+            });
+        }
+
         callback(null, {
             statusCode: 200,
             body: JSON.stringify({

@@ -12,6 +12,16 @@ module.exports.getProblem = async (event, context, callback) => {
                 ProblemId: id
             }
         });
+
+        if (!response) {
+            callback(null, {
+                statusCode: 404,
+                body: JSON.stringify({
+                    message: `Problem with id: ${id} has not been found`
+                })
+            });
+        }
+
         callback(null, {
             statusCode: 200,
             body: JSON.stringify({

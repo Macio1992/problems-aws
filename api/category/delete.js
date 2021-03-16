@@ -17,7 +17,7 @@ module.exports.deleteCategory = async (event, context, callback) => {
             callback(null, {
                 statusCode: 404,
                 body: JSON.stringify({
-                    message: `Category ${id} not found`
+                    message: `Category ${id} has not been found`
                 })
             });
         }
