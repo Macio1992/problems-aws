@@ -2,37 +2,37 @@
 
 const { getOne, deleteOne } = require('../../helpers/dynamo');
 
-module.exports.deleteProblem = async (event, context, callback) => {
+module.exports.deleteCategory = async (event, context, callback) => {
     const { id } = event.pathParameters;
 
     try {
-        const problem = await getOne({
-            TableName: process.env.PROBLEM_TABLE,
+        const category = await getOne({
+            TableName: process.env.CATEGORY_TABLE,
             Key: {
-                ProblemId: id
+                CategoryId: id
             }
         });
 
-        if (problem && Object.keys(problem).length === 0) {
+        if (category && Object.keys(category).length === 0) {
             callback(null, {
                 statusCode: 404,
                 body: JSON.stringify({
-                    message: `Problem ${id} has not been found`
+                    message: `Category ${id} has not been found`
                 })
             });
         }
 
         const response = await deleteOne({
-            TableName: process.env.PROBLEM_TABLE,
+            TableName: process.env.CATEGORY_TABLE,
             Key: {
-                ProblemId: id
+                CategoryId: id
             }
         });
 
         callback(null, {
             statusCode: 200,
             body: JSON.stringify({
-                message: `Successfully removed problem ${id}`,
+                message: `Successfully removed category ${id}`,
                 response
             })
         });

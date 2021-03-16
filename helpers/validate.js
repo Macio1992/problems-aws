@@ -1,4 +1,35 @@
-function validate(requestBody) {
+function validateCategory(requestBody) {
+    const missingFields = [];
+
+    const {
+        CategoryName,
+        IsRootCategory,
+        CategoryParentId
+    } = requestBody;
+
+    if (!CategoryName) {
+        missingFields.push('Category Name');
+    }
+
+    if (IsRootCategory === undefined) {
+        missingFields.push('Is Root Category');
+    }
+
+    if (IsRootCategory === false && !CategoryParentId) {
+        missingFields.push('Category Parent Id');
+    }
+
+    if (missingFields.length) {
+        throw {
+            statusCode: 400,
+            body: JSON.stringify({
+                message: `${missingFields.toString()} fields are required`
+            })
+        };
+    }
+}
+
+function validateProblem(requestBody) {
     const missingFields = [];
 
     const {
@@ -39,5 +70,6 @@ function validate(requestBody) {
 }
 
 module.exports = {
-    validate
+    validateCategory,
+    validateProblem
 };

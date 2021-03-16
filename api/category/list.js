@@ -2,18 +2,18 @@
 
 const { scan } = require('../../helpers/dynamo');
 
-module.exports.listProblems = async (event, context, callback) => {
+module.exports.listCategories = async (event, context, callback) => {
     try {
         const { Items: response } = await scan({
-            TableName: process.env.PROBLEM_TABLE,
-            ProjectionExpression: "ProblemId, ProblemContent, ProblemSolution, ProblemType, ProblemCategory, ProblemSubCategory, CreatedAt, UpdatedAt"
+            TableName: process.env.CATEGORY_TABLE,
+            ProjectionExpression: "CategoryId, CategoryName, IsRootCategory, CategoryParentId, CreatedAt, UpdatedAt"
         });
 
         if (!response.length) {
             callback(null, {
                 statusCode: 404,
                 body: JSON.stringify({
-                    message: `Problems have not been found`
+                    message: `Categories have not been found`
                 })
             });
         }
@@ -21,7 +21,7 @@ module.exports.listProblems = async (event, context, callback) => {
         callback(null, {
             statusCode: 200,
             body: JSON.stringify({
-                message: `Successfully retrieved problems`,
+                message: `Successfully retrieved categories`,
                 response
             })
         });
